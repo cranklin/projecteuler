@@ -11,39 +11,55 @@ It is possible to make L2 in the following way:
 How many different ways can L2 be made using any number of coins?
 '''
 coins = [200,100,50,20,10,5,2,1]
-counter = 0
-coincount = [0,0,0,0,0,0,0,0]
 
 def findcoincombo(amount):
-    global counter
     global coins
-    global coincount
+    counter = 1
+    coincount = [0,0,0,0,0,0,0,0]
 
     for k,i in enumerate(coins):
         if amount==i:
             coincount[k] = 1
 
-    getcombocount(coincount,amount)
+    done = False
+    current = 0
+    direction = "right"
+    while not done:
+        if coincount[current] == 0:
+            if direction == "left":
+                if current == 0:
+                    done = True
+                else:
+                    current -= 1
+            elif direction == "right":
+                if current == len(coins)-2:
+                    direction = "left"
+                else:
+                    current += 1
+        else:
+            direction = "right"
+            coincount[current] -= 1
+            leavealone = 0
+            for i in range (0,len(coins)):
+                if i <= current:
+                    leavealone += coincount[i] * coins[i]
+                    carryunder = amount - leavealone
+                else: 
+                    coincount[i] = 0
+            coincount[current+1] += carryunder / coins[current+1]
+            if (carryunder % coins[current+1]) > 0:
+                coincount[current+2] += (carryunder % coins[current+1]) / coins[current+2]
+                if current < len(coins)-3:
+                    current += 2
+                else:
+                    current += 1
+            elif current < len(coins)-2:
+                current += 1
+            counter += 1
+            #print coincount
+            #print current
+            #print direction
+    return counter
 
-def getcombocount(coincountlist,amount):
-    global counter
-    global coins
-
-    remainder = 0
-    start = 0
-    for k,i in enumerate(coincountlist):
-        if start==1 or i>0:
-            start = 1
-            if i*coins[k] == amount and (len(coins)-1) > (k+1):
-                coincountlist[k] -= 1
-                carryunder = amount - coincountlist[k]
-                coincountlist[k+1] = carryunder / coins[k+1]
-                if (carryunder % coins[k+1]) > 0:
-                    coincountlist[k+2] += 1
-                getcombocount(coincountlist,amount)
-            else:
-                
-
-findcoincombo(10)
+counter = findcoincombo(200)
 print counter
-print coincount
